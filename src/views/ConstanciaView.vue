@@ -8,235 +8,276 @@ const fecha = ref('')
 
 onMounted(async () => {
   try {
-
     const params = new URLSearchParams(window.location.search)
-
     const cui = params.get('cui') || '20250100'
-
     const response = await axios.get(
       `/api/restful/enrollment-certificate/?cui=${cui}`
     )
-
     console.log(response.data)
-
     const data = response.data.results
-
     if (data && data.length > 0) {
-
       estudiante.value = data[0].student
       cursos.value = data
-
     }
-
     fecha.value = new Date().toLocaleDateString('es-PE')
-
   } catch (error) {
-
     console.error(error)
-
   }
 })
 </script>
 
 <template>
+  <div class="page-bg">
+    <div class="document">
 
-<div class="container">
+      <!-- ENCABEZADO -->
+      <div class="header">
+        <h1 class="title">CONSTANCIA DE MATRÍCULA DE LABORATORIO</h1>
+        <h2 class="subtitle">Escuela Profesional de Ingeniería de Sistemas EPIS</h2>
+        <p class="fecha">Emitido el: {{ fecha }}</p>
+        <hr class="divider" />
+      </div>
 
-  <div class="header">
+      <div v-if="estudiante">
 
-    <h1>CONSTANCIA DE MATRÍCULA DE LABORATORIO</h1>
+        <!-- DATOS DEL ALUMNO -->
+        <div class="section-header">DATOS DEL ALUMNO</div>
+        <table class="info-table">
+          <tr>
+            <td class="info-label">C.U.I.:</td>
+            <td class="info-value">{{ estudiante.cui }}</td>
+          </tr>
+          <tr>
+            <td class="info-label">Nombre completo:</td>
+            <td class="info-value highlight">{{ estudiante.full_name }}</td>
+          </tr>
+          <tr>
+            <td class="info-label">Email:</td>
+            <td class="info-value highlight">{{ estudiante.email }}</td>
+          </tr>
+        </table>
 
-    <h2>
-      Escuela Profesional de Ingeniería de Sistemas EPIS
-    </h2>
+        <!-- ASIGNATURAS -->
+        <div class="section-header">ASIGNATURAS MATRICULADAS</div>
+        <table class="courses-table">
+          <thead>
+            <tr>
+              <th>N°</th>
+              <th>Código</th>
+              <th>Curso</th>
+              <th>Año</th>
+              <th>Grupo</th>
+              <th>Laboratorio</th>
+              <th>Docente</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(curso, index) in cursos" :key="curso.id">
+              <td class="center blue-bold">{{ index + 1 }}</td>
+              <td class="center">{{ curso.workload.course.code }}</td>
+              <td>
+                <span class="course-name">{{ curso.workload.course.name }}</span>
+                <span v-if="curso.workload.course.abbreviation" class="course-abbr">
+                  ({{ curso.workload.course.abbreviation }})
+                </span>
+              </td>
+              <td class="center">{{ curso.workload.course.year_display }}</td>
+              <td class="center">{{ curso.workload.group }}</td>
+              <td class="center blue-bold">{{ curso.workload.laboratory }}</td>
+              <td>{{ curso.workload.teacher.full_name }}</td>
+            </tr>
+          </tbody>
+        </table>
 
-    <p class="fecha">
-      Fecha de emisión: {{ fecha }}
-    </p>
+        <!-- RESUMEN -->
+        <div class="summary">
+          <strong>Total de cursos matriculados:</strong> {{ cursos.length }}
+        </div>
 
-  </div>
+        <!-- PIE -->
+        <p class="footer-note">
+          Documento generado digitalmente por el Sistema de Matrícula de Laboratorio EPIS.
+        </p>
+      </div>
 
-  <div v-if="estudiante">
+      <div v-else class="loading">
+        Cargando constancia...
+      </div>
 
-    <div class="section-title">
-      DATOS DEL ESTUDIANTE
     </div>
-
-    <table class="student-table">
-
-      <tr>
-        <td class="label">C.U.I.</td>
-        <td>{{ estudiante.cui }}</td>
-      </tr>
-
-      <tr>
-        <td class="label">Nombre Completo</td>
-        <td>{{ estudiante.full_name }}</td>
-      </tr>
-
-      <tr>
-        <td class="label">Correo Electrónico</td>
-        <td>{{ estudiante.email }}</td>
-      </tr>
-
-    </table>
-
-    <div class="section-title">
-      ASIGNATURAS MATRICULADAS
-    </div>
-
-    <table class="courses-table">
-
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Código</th>
-          <th>Curso</th>
-          <th>Año</th>
-          <th>Grupo</th>
-          <th>Laboratorio</th>
-          <th>Docente</th>
-        </tr>
-      </thead>
-
-      <tbody>
-
-        <tr
-          v-for="(curso,index) in cursos"
-          :key="curso.id"
-        >
-
-          <td>{{ index + 1 }}</td>
-
-          <td>
-            {{ curso.workload.course.code }}
-          </td>
-
-          <td>
-            {{ curso.workload.course.name }}
-          </td>
-
-          <td>
-            {{ curso.workload.course.year_display }}
-          </td>
-
-          <td>
-            {{ curso.workload.group }}
-          </td>
-
-          <td>
-            {{ curso.workload.laboratory }}
-          </td>
-
-          <td>
-            {{ curso.workload.teacher.full_name }}
-          </td>
-
-        </tr>
-
-      </tbody>
-
-    </table>
-
-    <div class="summary">
-      Total de cursos matriculados: {{ cursos.length }}
-    </div>
-
   </div>
-
-  <div v-else class="loading">
-
-    Cargando constancia...
-
-  </div>
-
-</div>
-
 </template>
 
 <style scoped>
-
-.container{
-  max-width:1100px;
-  margin:auto;
-  padding:25px;
-  font-family:Arial, Helvetica, sans-serif;
+/* Fondo gris de página */
+.page-bg {
+  min-height: 100vh;
+  background-color: #eef0f3;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
 }
 
-.header{
-  text-align:center;
-  margin-bottom:30px;
+/* Documento blanco con sombra */
+.document {
+  background: #ffffff;
+  max-width: 900px;
+  width: 100%;
+  padding: 40px 45px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.13);
+  border-radius: 4px;
+  box-sizing: border-box;
 }
 
-.header h1{
-  color:#154c79;
-  margin-bottom:5px;
+/* Encabezado */
+.header {
+  text-align: center;
+  margin-bottom: 8px;
 }
 
-.header h2{
-  color:#444;
-  font-size:20px;
-  margin-top:0;
+.title {
+  color: #154c79;
+  font-size: 22px;
+  font-weight: bold;
+  margin: 0 0 6px 0;
+  letter-spacing: 0.5px;
 }
 
-.fecha{
-  color:#777;
+.subtitle {
+  color: #333;
+  font-size: 15px;
+  font-weight: bold;
+  margin: 0 0 6px 0;
 }
 
-.section-title{
-  background:#f0f0f0;
-  border-left:5px solid #154c79;
-  padding:12px;
-  margin-top:25px;
-  margin-bottom:10px;
-  font-size:20px;
-  font-weight:bold;
+.fecha {
+  color: #c0392b;
+  font-size: 13px;
+  margin: 0 0 18px 0;
 }
 
-.student-table{
-  width:100%;
-  margin-bottom:25px;
+.divider {
+  border: none;
+  border-top: 2px solid #154c79;
+  margin: 0 0 24px 0;
 }
 
-.student-table td{
-  padding:10px;
+/* Encabezado de sección: fondo gris con borde izquierdo azul */
+.section-header {
+  background-color: #e8e8e8;
+  border-left: 5px solid #154c79;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #222;
+  letter-spacing: 0.5px;
+  margin-bottom: 0;
 }
 
-.label{
-  width:220px;
-  font-weight:bold;
+/* Tabla de datos del alumno */
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
 }
 
-.courses-table{
-  width:100%;
-  border-collapse:collapse;
+.info-table tr td {
+  padding: 9px 14px;
+  font-size: 14px;
+  vertical-align: middle;
 }
 
-.courses-table th{
-  background:#154c79;
-  color:white;
+.info-label {
+  font-weight: bold;
+  color: #222;
+  width: 200px;
 }
 
-.courses-table th,
-.courses-table td{
-  border:1px solid #ccc;
-  padding:10px;
+.info-value {
+  color: #222;
 }
 
-.courses-table tr:nth-child(even){
-  background:#f7f7f7;
+.info-value.highlight {
+  color: #c0392b;
 }
 
-.summary{
-  margin-top:20px;
-  font-size:18px;
-  font-weight:bold;
+/* Tabla de cursos */
+.courses-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  margin-bottom: 0;
 }
 
-.loading{
-  text-align:center;
-  margin-top:50px;
-  font-size:20px;
+.courses-table thead tr {
+  background-color: #154c79;
 }
 
+.courses-table th {
+  color: #ffffff;
+  padding: 10px 10px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 13.5px;
+  border: 1px solid #154c79;
+}
+
+.courses-table td {
+  padding: 9px 10px;
+  border: 1px solid #d0d0d0;
+  color: #222;
+  vertical-align: middle;
+}
+
+.courses-table tbody tr:nth-child(even) {
+  background-color: #f7f7f7;
+}
+
+.center {
+  text-align: center;
+}
+
+.blue-bold {
+  color: #154c79;
+  font-weight: bold;
+}
+
+.course-name {
+  display: block;
+  font-weight: bold;
+  color: #222;
+}
+
+.course-abbr {
+  display: block;
+  color: #2980b9;
+  font-size: 12.5px;
+}
+
+/* Resumen */
+.summary {
+  margin-top: 18px;
+  font-size: 14px;
+  color: #222;
+}
+
+/* Pie de página */
+.footer-note {
+  margin-top: 24px;
+  text-align: center;
+  font-style: italic;
+  color: #999;
+  font-size: 12px;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 18px;
+  color: #777;
+}
 </style>
