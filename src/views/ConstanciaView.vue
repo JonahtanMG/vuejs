@@ -9,7 +9,12 @@ const fecha = ref('')
 onMounted(async () => {
   try {
     const params = new URLSearchParams(window.location.search)
-    const cui = params.get('cui') || '20250100'
+    const cui = params.get('cui')
+
+    if (!cui) {
+      fecha.value = new Date().toLocaleDateString('es-PE')
+      return
+    }
     const response = await axios.get(
       `/api/restful/enrollment-certificate/?cui=${cui}`
     )
@@ -101,7 +106,11 @@ onMounted(async () => {
       </div>
 
       <div v-else class="loading">
-        Cargando constancia...
+        Ingrese un CUI en la URL.
+        <br>
+        Ejemplo:
+        <br>
+        ?cui=20250100
       </div>
 
     </div>
