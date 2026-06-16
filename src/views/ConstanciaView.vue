@@ -6,28 +6,56 @@ const estudiante = ref(null)
 const cursos = ref([])
 const fecha = ref('')
 
+const cargando = ref(true)
+const mensajeError = ref('')
+
 onMounted(async () => {
+
   try {
+
     const params = new URLSearchParams(window.location.search)
+
     const cui = params.get('cui')
 
-    if (!cui) {
-      fecha.value = new Date().toLocaleDateString('es-PE')
-      return
-    }
+  if (!cui) {
+    mensajeError.value = 'Debe proporcionar un CUI en la URL.'
+    cargando.value = false
+    return
+  }
+
     const response = await axios.get(
       `/api/restful/enrollment-certificate/?cui=${cui}`
     )
-    console.log(response.data)
+
     const data = response.data.results
+
     if (data && data.length > 0) {
+
       estudiante.value = data[0].student
       cursos.value = data
+
+    } else {
+
+      mensajeError.value =
+        `No se encontraron matrículas registradas para el CUI: ${cui}`
+
     }
+
     fecha.value = new Date().toLocaleDateString('es-PE')
+
   } catch (error) {
+
     console.error(error)
+
+    mensajeError.value =
+      'Ocurrió un error al consultar la constancia.'
+
+  } finally {
+
+    cargando.value = false
+
   }
+
 })
 </script>
 
@@ -43,67 +71,74 @@ onMounted(async () => {
         <hr class="divider" />
       </div>
 
-      <div v-if="estudiante">
+     <div v-if="cargando" class="loading">
+  Cargando datos de la constancia...
+</div>
 
-        <!-- DATOS DEL ALUMNO -->
-        <div class="section-header">DATOS DEL ALUMNO</div>
-        <table class="info-table">
-          <tr>
-            <td class="info-label">C.U.I.:</td>
-            <td class="info-value">{{ estudiante.cui }}</td>
-          </tr>
-          <tr>
-            <td class="info-label">Nombre completo:</td>
-            <td class="info-value highlight">{{ estudiante.full_name }}</td>
-          </tr>
-          <tr>
-            <td class="info-label">Email:</td>
-            <td class="info-value highlight">{{ estudiante.email }}</td>
-          </tr>
-        </table>
+<div v-else-if="mensajeError" class="error-message">
+  {{ mensajeError }}
+</div>
 
-        <!-- ASIGNATURAS -->
-        <div class="section-header">ASIGNATURAS MATRICULADAS</div>
-        <table class="courses-table">
-          <thead>
-            <tr>
-              <th>N°</th>
-              <th>Código</th>
-              <th>Curso</th>
-              <th>Año</th>
-              <th>Grupo</th>
-              <th>Laboratorio</th>
-              <th>Docente</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(curso, index) in cursos" :key="curso.id">
-              <td class="center blue-bold">{{ index + 1 }}</td>
-              <td class="center">{{ curso.workload.course.code }}</td>
-              <td>
-                <span class="course-name">{{ curso.workload.course.name }}</span>
-                <span v-if="curso.workload.course.abbreviation" class="course-abbr">
-                  ({{ curso.workload.course.abbreviation }})
-                </span>
-              </td>
-              <td class="center">{{ curso.workload.course.year_display }}</td>
-              <td class="center">{{ curso.workload.group }}</td>
-              <td class="center blue-bold">{{ curso.workload.laboratory }}</td>
-              <td>{{ curso.workload.teacher.full_name }}</td>
-            </tr>
-          </tbody>
-        </table>
+<div v-else-if="estudiante">
 
-        <!-- RESUMEN -->
-        <div class="summary">
-          <strong>Total de cursos matriculados:</strong> {{ cursos.length }}
-        </div>
+  <!-- DATOS DEL ALUMNO -->
+  <div class="section-header">DATOS DEL ALUMNO</div>
+  <table class="info-table">
+    <tr>
+      <td class="info-label">C.U.I.:</td>
+      <td class="info-value">{{ estudiante.cui }}</td>
+    </tr>
+    <tr>
+      <td class="info-label">Nombre completo:</td>
+      <td class="info-value highlight">{{ estudiante.full_name }}</td>
+    </tr>
+    <tr>
+      <td class="info-label">Email:</td>
+      <td class="info-value highlight">{{ estudiante.email }}</td>
+    </tr>
+  </table>
 
-        <!-- PIE -->
-        <p class="footer-note">
-          Documento generado digitalmente por el Sistema de Matrícula de Laboratorio EPIS.
-        </p>
-      </div>
+  <!-- ASIGNATURAS -->
+  <div class="section-header">ASIGNATURAS MATRICULADAS</div>
+  <table class="courses-table">
+    <thead>
+      <tr>
+        <th>N°</th>
+        <th>Código</th>
+        <th>Curso</th>
+        <th>Año</th>
+        <th>Grupo</th>
+        <th>Laboratorio</th>
+        <th>Docente</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="(curso, index) in cursos" :key="curso.id">
+        <td class="center blue-bold">{{ index + 1 }}</td>
+        <td class="center">{{ curso.workload.course.code }}</td>
+        <td>
+          <span class="course-name">{{ curso.workload.course.name }}</span>
+          <span v-if="curso.workload.course.abbreviation" class="course-abbr">
+            ({{ curso.workload.course.abbreviation }})
+          </span>
+        </td>
+        <td class="center">{{ curso.workload.course.year_display }}</td>
+        <td class="center">{{ curso.workload.group }}</td>
+        <td class="center blue-bold">{{ curso.workload.laboratory }}</td>
+        <td>{{ curso.workload.teacher.full_name }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="summary">
+    <strong>Total de cursos matriculados:</strong> {{ cursos.length }}
+  </div>
+
+  <p class="footer-note">
+    Documento generado digitalmente por el Sistema de Matrícula de Laboratorio EPIS.
+  </p>
+
+</div>
 
       <div v-else class="loading">
         Ingrese un CUI en la URL.
