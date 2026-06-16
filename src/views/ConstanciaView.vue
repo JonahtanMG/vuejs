@@ -325,21 +325,5 @@ onMounted(async () => {
   font-size: 18px;
   color: #777;
 }
-  .error-message {
-  text-align: center;
-  margin-top: 50px;
-  padding: 20px;
-  border: 1px solid #f5c2c7;
-  background: #f8d7da;
-  color: #842029;
-  border-radius: 6px;
-  font-size: 18px;
-}
 
-.loading {
-  text-align: center;
-  margin-top: 50px;
-  font-size: 18px;
-  color: #555;
-}
 </style>
