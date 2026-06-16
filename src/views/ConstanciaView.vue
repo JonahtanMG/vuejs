@@ -14,7 +14,7 @@ onMounted(async () => {
     const cui = params.get('cui') || '20250100'
 
     const response = await axios.get(
-      `https://sisacad-enrollments-backend.vercel.app/restful/enrollment-certificate/?cui=${cui}`
+      `/api/restful/enrollment-certificate/?cui=${cui}`
     )
 
     const data = response.data.results
