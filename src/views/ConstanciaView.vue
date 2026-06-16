@@ -154,7 +154,7 @@ onMounted(async () => {
 }
 
 .fecha {
-  color: #c0392b;
+  color: #888;
   font-size: 13px;
   margin: 0 0 18px 0;
 }
@@ -201,7 +201,7 @@ onMounted(async () => {
 }
 
 .info-value.highlight {
-  color: #c0392b;
+  color: #154c79;
 }
 
 /* Tabla de cursos */
@@ -213,16 +213,17 @@ onMounted(async () => {
 }
 
 .courses-table thead tr {
-  background-color: #154c79;
+  background-color: transparent;
 }
 
 .courses-table th {
-  color: #ffffff;
+  color: #222;
   padding: 10px 10px;
   text-align: left;
   font-weight: bold;
   font-size: 13.5px;
-  border: 1px solid #154c79;
+  border: 1px solid #d0d0d0;
+  background-color: transparent;
 }
 
 .courses-table td {
