@@ -1,3 +1,7 @@
+<script setup>
+import ConstanciaView from './views/ConstanciaView.vue'
+</script>
+
 <template>
-  <router-view />
+  <ConstanciaView />
 </template>
